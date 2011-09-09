@@ -78,29 +78,35 @@ typedef struct {
 } attribute_t;
 
 void 
-set_attribute (WebKitDOMNode* node, attribute_t attribute)
+set_attributes (WebKitDOMNode* node, attribute_t* attributes,
+		int attributes_count)
 {
   GError* error = NULL;
 
-  g_print("setting %s\n", attribute.name);
-  WebKitDOMNamedNodeMap* attributes = 
+  WebKitDOMNamedNodeMap* dom_attributes = 
     webkit_dom_node_get_attributes (node);
   g_assert (attributes != NULL);
 
-  WebKitDOMNode* dom_attribute = 
-    webkit_dom_named_node_map_get_named_item (attributes,
-					      attribute.name);
-  g_assert (dom_attribute != NULL);
+  for (int i = 0; i < attributes_count; i++) {
+    g_print("%d\n", i);
+    g_print("attr %s: %s",attributes[i].name, attributes[i].value);
+    WebKitDOMNode* dom_attribute = 
+      webkit_dom_named_node_map_get_named_item (dom_attributes,
+						attributes[i].name);
+    g_assert (dom_attribute != NULL);
 
-  webkit_dom_attr_set_value (WEBKIT_DOM_ATTR (dom_attribute), attribute.value, &error);
+    webkit_dom_attr_set_value (WEBKIT_DOM_ATTR (dom_attribute), attributes[i].value, &error);
   
-  if (error != NULL) {
-    g_warning (error->message);
-    g_error_free (error);
-  } 
+    g_object_unref (dom_attribute);
+
+    if (error != NULL) {
+      g_warning (error->message);
+      g_error_free (error);
+    }
+  }
   
-  g_object_unref (attributes);
-  g_object_unref (dom_attribute);
+  g_object_unref (dom_attributes);
+
 }
 
 void set_attributes_by_class (WebKitDOMDocument* document,
@@ -112,11 +118,7 @@ void set_attributes_by_class (WebKitDOMDocument* document,
   gulong number_of_nodes = webkit_dom_node_list_get_length (nodes);
   for (int i = 0; i < number_of_nodes; i++) {
     WebKitDOMNode* node = webkit_dom_node_list_item(nodes, i);
-    
-    for (int j = 0; j < attributes_count; j++)
-      set_attribute (node, attributes[j]);
-
-
+    set_attributes (node, attributes, attributes_count);
     g_object_unref (node);
   }
   g_object_unref (nodes);
@@ -147,7 +149,7 @@ void on_webview_loaded (WebKitWebView *view,
   attribute_t favicon_attributes[1] = {
     {"xlink:href", g_file_get_uri (favicon)},
   };
-  set_attributes_by_class (document, "favicon", favicon_attributes, 1);
+  //set_attributes_by_class (document, "favicon", favicon_attributes, 1);
   
   g_object_unref (document);
 }
