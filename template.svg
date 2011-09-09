@@ -21,7 +21,58 @@
    sodipodi:docname="template.svg"
    inkscape:output_extension="org.inkscape.output.svg.inkscape"
    version="1.0"
-   style="display:inline;enable-background:new">
+   style="display:inline;enable-background:new"
+   onload="init()"
+   >
+<script type="text/javascript">
+    <![CDATA[
+function init() {
+	shot = document.getElementById('EmbeddedPic256');
+	document.onm
+}
+
+var originEvent;
+function drag(src, mouseDownEvent)
+{
+	document.onmouseup = function(mouseUpEvent) {
+	src.onmousemove = null;
+	console.log((originEvent.clientX - mouseUpEvent.clientX)+ ', '+
+	(originEvent.clientY - mouseUpEvent.clientY));
+
+	document.getElementById('EmbeddedPic48').x.baseVal.value -= originEvent.clientX - mouseUpEvent.clientX;
+	document.getElementById('EmbeddedPic48').y.baseVal.value -= originEvent.clientY - mouseUpEvent.clientY;
+
+	document.getElementById('EmbeddedPic32').x.baseVal.value -= originEvent.clientX - mouseUpEvent.clientX;
+	document.getElementById('EmbeddedPic32').y.baseVal.value -= originEvent.clientY - mouseUpEvent.clientY;
+	}
+	
+	originEvent = mouseDownEvent;
+	var currentPos = {x:shot.x.baseVal.value, y:shot.y.baseVal.value}
+	
+	src.onmousemove = function(e) {
+		var delta = {x: e.clientX - mouseDownEvent.clientX, y: e.clientY - mouseDownEvent.clientY}
+		var newPos = {x: delta.x > 0 ? Math.min(-12, currentPos.x + delta.x) : 
+						Math.max(-shot.width.baseVal.value + 222 + 90,
+					                 currentPos.x + delta.x),
+			      y: delta.y > 0 ? Math.min(40, currentPos.y + delta.y) :
+						Math.max(-shot.height.baseVal.value + 222 + 90,
+							 currentPos.y + delta.y)
+			      }
+		shot.x.baseVal.value = newPos.x;
+		shot.y.baseVal.value = newPos.y;
+		return false //cancel default drag action		
+	}
+	return false;
+};
+
+function drop(src, evt)
+{
+        
+	src.onmousemove = null;
+}
+    
+    ]]>
+  </script>
   <title
      id="title4872">Firewall</title>
   <sodipodi:namedview
@@ -1041,11 +1092,13 @@
       </g>
       <g
          transform="translate(20,32)"
-         style="display:inline;enable-background:new"
+         style="display:inline;enable-background:new;cursor:hand;"
          id="g3169">
         <g
            transform="translate(170,-32)"
-           id="g75">
+           id="g75"
+	   onmousedown="drag(this, evt);"
+	  >
           <rect
              style="opacity:0.1;fill:url(#linearGradient3159-3-3);fill-rule:nonzero;enable-background:accumulate"
              rx="20"
